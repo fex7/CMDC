@@ -4,8 +4,12 @@ import abc
 
 
 
-class BasePreprocessor(metaclass=abc.ABCMeta):
-	"""Base class all preprocessor commands."""
+class BaseBpp(metaclass=abc.ABCMeta):
+	"""
+	Base class for all preprocessor commands,
+	and for the preprocessor itself.
+	
+	"""
 
 	def read(self, file_path):
 		"""Read bat file.
@@ -32,6 +36,16 @@ class BasePreprocessor(metaclass=abc.ABCMeta):
 
 		with open(file_path, 'w') as file:
 			file.write(text)
+
+
+class BaseCommand(BaseBpp, metaclass=abc.ABCMeta):
+	"""Main base class for preprocessor commands."""
+	pass
+
+
+class BasePreprocessor(BaseBpp, metaclass=abc.ABCMeta):
+	"""Main base class for preprocessor."""
+	pass
 
 
 __all__ = [

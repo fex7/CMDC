@@ -4,8 +4,8 @@ import re
 
 
 
-class PreprocessorCommands:
-	"""All preprocessor commands regexs."""
+class IncluderRegexs:
+	"""Regular expressions of the 'include' command."""
 	
 	com_include = {
 		# Good templates.
@@ -21,6 +21,12 @@ class PreprocessorCommands:
 		-5:    re.compile(r'(?<=\n)[ \t]*:#include [^"].+"'), # :#include lib.bat"
 		-6:    re.compile(r'(?<=\n)[ \t]*:#include [^"].+[^"](?!.+)'), # :#include fold\lib.bat
 	}
+
+
+class PreprocessorCommands(IncluderRegexs,):
+	"""Regular expressions of all preprocessor commands."""
+	pass
+
 
 __all__ = [
 	n for n in globals() if not n.startswith('_')

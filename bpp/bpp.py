@@ -12,9 +12,6 @@ This utility will work correctly on Windows operating systems.
 
 """
 
-#import textwrap
-#import abc
-#import re
 import random
 import sys
 import os
@@ -158,7 +155,7 @@ def run():
 		error_message = '%s' % (
 			'\n'.join(map(str, ex.args)),
 		)
-		if isinstance(ex, OSError):
+		if isinstance(ex, OSError) and ex.filename is not None:
 			error_message += ": '%s'" % ex.filename
 		print(error_message)
 		sys.exit(1)

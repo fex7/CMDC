@@ -4,7 +4,7 @@ import os
 import textwrap
 
 from abcs import (
-	BasePreprocessor,
+	BaseCommand,
 )
 from exceptions import (
 	IncludeError,
@@ -13,7 +13,7 @@ from exceptions import (
 
 
 
-class Includer(BasePreprocessor):
+class Includer(BaseCommand):
 	"""'Include' command class.
 	
 	Constructor:
