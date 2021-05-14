@@ -1,7 +1,12 @@
-"""bpp utility exceptions."""
+"""Bpp utility exceptions."""
 
 
-class PreprocessorError(Exception):
+class BPPError(Exception):
+	"""Main exception class for Bpp utility."""
+	pass
+
+
+class PreprocessorError(BPPError):
 	"""Main exception class a preprocessor commands."""
 	pass
 
@@ -13,6 +18,11 @@ class IncludeError(PreprocessorError):
 
 class IncludedSourceError(IncludeError):
 	"""Raises when the source file is included itself."""
+	pass
+
+
+class CLIError(BPPError):
+	"""Command Line Interface exception."""
 	pass
 
 

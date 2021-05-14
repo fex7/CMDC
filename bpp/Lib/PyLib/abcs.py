@@ -49,5 +49,7 @@ class BasePreprocessor(BaseBpp, metaclass=abc.ABCMeta):
 
 
 __all__ = [
-	n for n in globals() if not n.startswith('_')
+	n for n in globals()
+			if not n.startswith('_')
+			if n not in ('abc',)
 ]

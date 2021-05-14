@@ -3,12 +3,15 @@
 import os
 import textwrap
 
-from abcs import (
+from .abcs import (
 	BaseCommand,
 )
-from exceptions import (
+from .exceptions import (
 	IncludeError,
-	IncludedSourceError
+	IncludedSourceError,
+)
+from .prompts import (
+	get_include_prompt,
 )
 
 
@@ -19,26 +22,109 @@ class Includer(BaseCommand):
 	Constructor:
 	    regexs: dict -- include command regexs.
 	    source_file_path: str -- source bat file path
-	
+
 	"""
 
 	def __new__(cls, regexs, source_file_path):
 		error_message = "Param '%s' type is '%s', not '%s'"
 		if not isinstance(regexs, dict):
 			raise TypeError(
-				error_message % ('regexs', 'dict',
-				type(regexs).__name__),
-			)
+				error_message % (
+					'regexs', 'dict',
+					type(regexs).__name__),)
 		if not isinstance(source_file_path, str):
 			raise TypeError(
-				error_message % ('source_file_path', 'str',
-				type(source_file_path).__name__),
-			)
+				error_message % (
+					'source_file_path', 'str',
+					type(source_file_path).__name__),)
 		return super().__new__(cls)
 
 	def __init__(self, regexs, source_file_path):
 		self._regexs = regexs
 		self._source_file_path = source_file_path
+		self._comment_symbol = '::'
+		self._file_extensions = ('.bat', '.cmd', '.hbat', '.hb')
+	
+	def __repr__(self):
+		repr_text = "Includer(regexs=%s, source_file_path=%s)" % (
+			self._regexs, self._source_file_path
+		)
+		return repr_text
+	
+	def setproperty(self, name, value):
+		"""Set the property new value.
+		
+		The parameter 'name' for example -
+		could be 'comment' OR 'extensions'.
+
+		If name == 'extensions' then
+		    set file extensions. ( ['.bat', '.cmd','.py'] )
+		If name == 'comment' then
+		    set comment symbol. ( '//', '#', '::', ...etc ) -
+		    * the specify one option.
+		
+		Args:
+		    name: str -- property name.
+		    value: object -- new value
+		
+		Raises:
+		    TypeError -- if incorrectly params types
+		    ValueError -- if unsupported property
+		    AttributeError -- if attribute not found
+		
+		"""
+		 
+		if not isinstance(name, str):
+			raise TypeError("Param name is 'str'")
+		if name == 'extensions' and not isinstance(value, (list, tuple)):
+			errmsg = "If param name == 'extension' do the value is 'list' or 'tuple'"
+			raise TypeError(errmsg)
+		if name == 'comment' and not isinstance(value, str):
+			errmsg = "If param name == 'comment' do the value is 'str'"
+			raise TypeError(errmsg)
+		if name in ('extensions', 'comment'):
+			if name == 'extensions':
+				self._file_extensions = value
+			elif name == 'comment':
+				self._comment_symbol = value
+		else:
+			errmsg = "This name '%s' - not supported" % name
+			raise ValueError(errmsg)
+	
+	def getproperty(self, name):
+		"""Return property value.
+		
+		The parameter 'name' for example -
+		could be 'comment' OR 'extensions'.
+
+		If name == 'extensions' then
+		    return file extensions. ( ['.bat', '.cmd','.py'] )
+		If name == 'comment' then
+		    return comment symbol. ( '//', '#', '::', ...etc ) -
+			* the specify one option.
+		
+		Args:
+		    name: str -- property name.
+		
+		Return:
+		    value: object -- property value
+		
+		Raises:
+		    TypeError -- if incorrectly params types
+		    ValueError -- if unsupported property
+
+		"""
+		
+		if not isinstance(name, str):
+			raise TypeError("Param name is 'str'")
+		if name in ('extensions', 'comment'):
+			if name == 'extensions':
+				return self._file_extensions
+			elif name == 'comment':
+				return self._comment_symbol
+		else:
+			errmsg = "This name '%s' - not supported" % name
+			raise ValueError(errmsg)
 
 	def read_include_bat(self, file_path):
 		"""Read include file.
@@ -52,10 +138,11 @@ class Includer(BaseCommand):
 		"""
 
 		if not os.path.isfile(file_path):
-			raise FileNotFoundError('Bat file not found')
+			raise FileNotFoundError('Include file not found')
 		file_ext = os.path.splitext(os.path.split(file_path)[-1])[-1]
-		if file_ext not in ('.bat', '.cmd', '.hbat'):
-			raise OSError("File extension is '.bat', '.cmd', '.hbat'")
+		if file_ext not in self._file_extensions:
+			raise OSError(
+				"File extension must be in %s" % self._file_extensions)
 		return self.read(file_path)
 	
 	def read_from_environ(self, environ_var):
@@ -72,7 +159,8 @@ class Includer(BaseCommand):
 		"""
 		
 		variable_value = os.popen('echo %s' % environ_var).read().strip()
-		return (self.read_include_bat(variable_value), variable_value)
+		file_value = self.read_include_bat(variable_value)
+		return (file_value, variable_value)
 	
 	def syntax_analyze(self, source):
 		"""The syntax analyzer for the inlcude command.
@@ -91,6 +179,7 @@ class Includer(BaseCommand):
 		
 		error_message = textwrap.dedent("""
 			Syntax Error with 'include' command:\n
+			* %s
 			Line -- %s
 			SyntaxError -- %s""")[1:]
 		com_include = self._regexs
@@ -106,7 +195,10 @@ class Includer(BaseCommand):
 					
 				except ValueError:
 					line = -1
-				raise IncludeError(error_message % (line, match))
+				prompt = get_include_prompt(n)
+				raise IncludeError(
+					error_message % (prompt, line, match)
+				)
 		else:
 			return True
 	
@@ -133,12 +225,12 @@ class Includer(BaseCommand):
 		"""
 
 		error_message = textwrap.dedent("""
-			Error: The file is trying to include itself.\n
+			The file is trying to include itself.\n
 			Line - %s
 			IncludeError - %s""")[1:]
 		try:
 			line = source.splitlines().index(include_expression)
-		
+
 		except ValueError:
 			line = -1
 		raise IncludedSourceError(error_message % (line, include_expression))
@@ -159,8 +251,13 @@ class Includer(BaseCommand):
 		
 		# analyze
 		self.syntax_analyze(source)
-		after_replacement = ':: File - "%s"\n' + '::%s(\n\n' % ('-' * 31)
-		before_replacement = '\n\n::%s)\n' % ('-' * 31)
+		after_replacement = (
+			'%s ' % self._comment_symbol + 'File - "%s"\n' +\
+			'%s%s(\n\n' % (self._comment_symbol, '-'*30)
+		)
+		before_replacement = (
+			'\n\n%s%s)\n' % (self._comment_symbol, '-'*30)
+		)
 		err_msg = "Syntax Error from 'include' command"
 		com_include = self._regexs
 		source_includes = source
@@ -199,6 +296,73 @@ class Includer(BaseCommand):
 		return source_includes
 
 
+def get_special_includer(regexs, source_file_path, lang='batch'):
+	"""Return special Includer object.
+	
+	In 'lang' parameter, you must specify the name of the language.
+	For example - 'batch', python, 'cplusplus'
+	
+	It will just put the file extension and comment character,
+	for that language.
+
+	A 'lang' param value is not case sensitive.
+	
+	Args:
+	    regexs: dict -- include command regexs.
+	    source_file_path: str -- source file path
+	    lang: str -- language name. For example 'batch' or 'python'
+	
+	Return:
+	    value: Includer -- Includer object
+	
+	Raises:
+	    TypeError -- If incorrectly params types
+	    ValueError -- If incorrectly params
+
+	"""
+	
+	error_message = "Param '%s' type is '%s', not '%s'"
+	if not isinstance(lang, str):
+		raise TypeError(
+			error_message % (
+				'lang', 'str',
+				type(lang).__name__,)
+		)
+	lang = lang.lower()
+	includer = Includer(regexs, source_file_path)
+	if lang == 'batch':
+		includer._comment_symbol = '::'
+		includer._file_extensions = ('.bat', '.cmd', '.hbat', '.hb')
+	elif lang == 'python':
+		includer._comment_symbol = '#'
+		includer._file_extensions = ('.py')
+	elif lang == 'c':
+		includer._comment_symbol = '//'
+		includer._file_extensions = ('.c', '.h')
+	elif lang == 'cplusplus':
+		includer._comment_symbol = '//'
+		includer._file_extensions = ('.cpp', '.cxx', '.cc', '.h', '.hpp')
+	elif lang == 'java':
+		includer._comment_symbol = '//'
+		includer._file_extensions = ('.java')
+	elif lang == 'c#':
+		includer._comment_symbol = '//'
+		includer._file_extensions = ('.cs')
+	elif lang == 'go':
+		includer._comment_symbol = '//'
+		includer._file_extensions = ('.go')
+	elif lang == 'bash':
+		includer._comment_symbol = '#'
+		includer._file_extensions = ('.sh')
+	elif lang == 'javascript':
+		includer._comment_symbol = '//'
+		includer._file_extensions = ('.js')
+	else:
+		raise ValueError("This lang '%s' is unsupported" % lang)
+	return includer
+
+
 __all__ = [
-	n for n in globals() if not n.startswith('_')
+	'Includer',
+	'get_special_includer',
 ]

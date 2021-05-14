@@ -19,7 +19,7 @@ def chdir_to_filedir(file_path):
 	"""
 
 	if not os.path.isfile(file_path):
-		raise FileNotFoundError("file not found")
+		raise FileNotFoundError("File not found")
 	file_dirname = os.path.dirname(file_path)
 	os.chdir(file_dirname)
 	return file_dirname
@@ -38,5 +38,6 @@ def get_temp_dir():
 
 
 __all__ = [
-	n for n in globals() if not n.startswith('_')
+	'chdir_to_filedir',
+	'get_temp_dir',
 ]

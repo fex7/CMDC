@@ -1,6 +1,7 @@
 """Preprocessor commands."""
 
 import re
+import os
 
 
 
@@ -22,12 +23,19 @@ class IncluderRegexs:
 		-6:    re.compile(r'(?<=\n)[ \t]*:#include [^"].+[^"](?!.+)'), # :#include fold\lib.bat
 	}
 
+	if os.name == 'posix':
+		com_include[2] = re.compile(r'(?<=\n)[ \t]*:#include[ \t]*".*\$.*"[ \t]*(?=\n)')
+
 
 class PreprocessorCommands(IncluderRegexs,):
 	"""Regular expressions of all preprocessor commands."""
-	pass
+	
+	def __repr__(self):
+		repr_text = "PreprocessorCommands()"
+		return repr_text
 
 
 __all__ = [
-	n for n in globals() if not n.startswith('_')
+	'IncluderRegexs',
+	'PreprocessorCommands',
 ]

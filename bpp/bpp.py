@@ -10,6 +10,10 @@ $ python bpp.py --help
 
 This utility will work correctly on Windows operating systems.
 
+Author: Fex
+GitHub: https://github.com/Fexxyi
+Date: 12 May 2021
+
 """
 
 import random
@@ -17,26 +21,29 @@ import sys
 import os
  
 sys.path.insert(
-	1, os.path.realpath(os.path.join(__file__, '..', 'Lib', 'PyLib'))
+	1, os.path.realpath(os.path.join(__file__, '..', 'Lib'))
 )
 
-from abcs import (
+from PyLib.abcs import (
 	BasePreprocessor,
 )
-from precommands import (
+from PyLib.precommands import (
 	PreprocessorCommands,
 )
-from includer import (
+from PyLib.includer import (
 	Includer,
 )
-from bppcli import (
+from PyLib.bppcli import (
 	BppCLI,
 )
-from utils import (
+from PyLib.utils import (
 	chdir_to_filedir,
 	get_temp_dir,
 )
-
+from PyLib.exceptions import (
+	BPPError,
+	CLIError,
+)
 
 
 class Preprocessor(BasePreprocessor):
@@ -62,6 +69,12 @@ class Preprocessor(BasePreprocessor):
 		self._includer = Includer(
 				self._preproc_commands.com_include,
 				self._bat_file_path)
+	
+	def __repr__(self):
+		repr_text = "Preprocessor(bat_file_path=%s)" % (
+			self._bat_file_path
+		)
+		return repr_text
 	
 	def get_preprocessed_file(self):
 		"""Return preprocessed file value."""
@@ -96,16 +109,17 @@ class Preprocessor(BasePreprocessor):
 def main(argc, argv):
 	"""Main function."""
 
-	bppcli = BppCLI()
-	status = bppcli.parse(argv)
+	bpp_cli = BppCLI()
+	status = bpp_cli.parse(argv)
 	if not status:
 		return None
-	parsered_args = bppcli.get_parsered_args()
+	bpp_cli.validate()
+	parsered_args = bpp_cli.get_parsered_args()
 	source = parsered_args['source']
 	output = parsered_args['output']
 	run = parsered_args['run']
 	if source is None:
-		raise ValueError("Argument '--source or -s' not specified")
+		raise CLIError("Argument '--source or -s' not specified")
 	source = os.path.abspath(source)
 	current_dir = os.getcwd()
 	chdir_to_filedir(source)
@@ -152,12 +166,17 @@ def run():
 		main(argc, argv)
 	
 	except Exception as ex:
-		error_message = '%s' % (
-			'\n'.join(map(str, ex.args)),
-		)
-		if isinstance(ex, OSError) and ex.filename is not None:
-			error_message += ": '%s'" % ex.filename
-		print(error_message)
+		exceps = (BPPError, OSError,)
+		if isinstance(ex, exceps):
+			error_message = 'Error: %s' % (
+				'\n'.join(map(str, ex.args)),
+			)
+			if isinstance(ex, OSError) and ex.filename is not None:
+				error_message += ": '%s'" % ex.filename
+			print(error_message)
+		else:
+			error_message = "Error: Some kind of error has occurred"
+			print(error_message)
 		sys.exit(1)
 	
 	else:
@@ -172,9 +191,7 @@ def run():
 
 
 __all__ = [
-	n for n in globals()
-				if n not in ('main', 'run') 
-				if not n.startswith('_')
+	'Preprocessor',
 ]
 
 
@@ -183,4 +200,6 @@ if __name__ == "__main__":
 		run()
 	
 	except Exception:
-		pass
+		error_message = "Error: Something went wrong"
+		print(error_message)
+		sys.exit(1)

@@ -1,6 +1,15 @@
 """Batch preprocessor command line interface."""
 
 import textwrap
+import copy
+import os
+
+from .exceptions import (
+	CLIError,
+)
+from .version import (
+	getversion,
+)
 
 
 
@@ -13,8 +22,10 @@ class BppCLI:
 		'--source':   ('binary', 'source'),
 		'-s':         ('binary', 'source'),
 		'--run':      ('unary',  'run'   ),
-		'run':        ('unary',  'run'   ),
 		'-r':         ('unary',  'run'   ),
+		'--help':     ('unary',  'help'  ),
+		'-h':         ('unary',  'help'  ),
+		'--version':  ('unary', 'version'),
 	}
 
 	def __init__(self):
@@ -24,9 +35,13 @@ class BppCLI:
 			'run': None,
 		}
 	
+	def __repr__(self):
+		repr_text = "BppCLI()"
+		return repr_text
+	
 	def get_parsered_args(self):
 		"""Return parsered arguments."""
-		return self._parsered_args
+		return copy.copy(self._parsered_args)
 		
 	def print_help(self):
 		"""Printed Help."""
@@ -34,11 +49,15 @@ class BppCLI:
 		help_text = textwrap.dedent("""
 			This utility preprocesses bat files.
 			
+			Syntax:
+			    python bpp.py -s|--source <source file> [-o|--output <output file>] [-r|--run]
+
 			Params:
-			    [--output] | [-o] <output file> 
 			    --source | -s <source file>
-			    [--run] | [-r] | [run]
+			    [--output] | [-o] <output file>
+			    [--run] | [-r]
 			    [--help] | [-h]
+			    [--version]
 			
 			Examples:
 			    $ python bpp.py --output newbat.bat --source mybat.bat 
@@ -47,6 +66,12 @@ class BppCLI:
 			    $ python bpp.py -r -s script.cmd
 		""")
 		print(help_text)
+	
+	def print_version(self):
+		"""Printed Bpp utility version."""
+		
+		version = "bpp %s" % getversion()
+		print(version)
 	
 	def is_supported(self, argument):
 		"""Checks if the parameter is supported or not.
@@ -89,21 +114,24 @@ class BppCLI:
 		Return:
 		    value: bool -- If parsered then True, if not then False.
 		
+		Raises:
+		    CLIError -- If incorrect command line arguments
+		
 		"""
 
 		if len(argv) <= 1 or '--help' in argv or '-h' in argv:
 			self.print_help()
 			return False
+		if '--version' in argv:
+			self.print_version()
+			return False
 		output = source = run = None
 		errmsg = "before param '%s' must be indicated value"
-		ind = arg = 0
+		ind = arg = 1
 		while ind < len(argv):
 			arg = argv[ind]
-			if ind == 0:
-				ind += 1
-				continue
 			if not self.is_supported(arg):
-				raise ValueError("This argument '%s' is unsupported." % arg)
+				raise CLIError("This argument '%s' is unsupported." % arg)
 			argname = self.get_argument_info(arg)[-1]
 			if argname == 'output':
 				if len(argv)-1 > ind:
@@ -111,14 +139,14 @@ class BppCLI:
 					ind += 2
 					continue
 				else:
-					raise ValueError(errmsg % '-o / --output')
+					raise CLIError(errmsg % '-o / --output')
 			if argname == 'source':
 				if len(argv)-1 > ind:
 					source = argv[ind+1]
 					ind += 2
 					continue
 				else:
-					raise ValueError(errmsg % '-s / --source')
+					raise CLIError(errmsg % '-s / --source')
 			if argname == 'run':
 				run = 'true'
 			ind += 1
@@ -128,8 +156,23 @@ class BppCLI:
 			'run': run
 		})
 		return True
+	
+	def validate(self):
+		"""Validates command line arguments.
+		
+		Raises:
+		    CLIError -- If incorrect command line arguments
+		
+		"""
+
+		source = self._parsered_args.get('source', None)
+		if source is None:
+			raise CLIError("Param '-s / --source' must be indicated")
+		if isinstance(source, str) and not os.path.isfile(source):
+			raise CLIError('Source file not found')
+		return None
 
 
 __all__ = [
-	n for n in globals() if not n.startswith('_')
+	'BppCLI',
 ]
