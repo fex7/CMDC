@@ -1,6 +1,8 @@
 """Bpp utility version."""
 
-__version__ = "1.0.0"
+__version__ = "0.1.2"
+__author__ = "Artashes Nazinyan (Fex)"
+__author_email__ = "theartman380@gmail.com"
 
 
 def getversion():

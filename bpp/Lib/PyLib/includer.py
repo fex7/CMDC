@@ -258,7 +258,7 @@ class Includer(BaseCommand):
 		before_replacement = (
 			'\n\n%s%s)\n' % (self._comment_symbol, '-'*30)
 		)
-		err_msg = "Syntax Error from 'include' command"
+		error_message = "Syntax Error from 'include' command"
 		com_include = self._regexs
 		source_includes = source
 		for m2 in com_include[2].finditer(source):
@@ -276,7 +276,7 @@ class Includer(BaseCommand):
 				)
 				source_includes = source_includes.replace(m2, included_value)
 			else:
-				raise IncludeError(err_msg)
+				raise IncludeError(error_message)
 		for m1 in com_include[1].finditer(source_includes):
 			m1 = m1.group()
 			included_file = com_include[11].search(m1)
@@ -292,7 +292,7 @@ class Includer(BaseCommand):
 				)
 				source_includes = source_includes.replace(m1, included_value)
 			else:
-				raise IncludeError(err_msg)
+				raise IncludeError(error_message)
 		return source_includes
 
 

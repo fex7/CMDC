@@ -3,7 +3,6 @@
 import abc
 
 
-
 class BaseBpp(metaclass=abc.ABCMeta):
 	"""
 	Base class for all preprocessor commands,
