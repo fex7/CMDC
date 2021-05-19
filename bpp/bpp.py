@@ -11,12 +11,15 @@ $ python bpp.py --help
 
 This utility will work correctly on Windows operating systems.
 
+------------------------------
+Date: 12 May 2021
+
 Author: Fex
 GitHub: https://github.com/Fexxyi
-Date: 12 May 2021
 
 """
 
+import logging
 import random
 import sys
 import os
@@ -32,7 +35,7 @@ from PyLib.bppcli import (
 	BppCLI,
 )
 from PyLib.utils import (
-	chdir_to_filedir,
+	chdir_tofiledir,
 	get_temp_dir,
 )
 from PyLib.exceptions import (
@@ -40,10 +43,25 @@ from PyLib.exceptions import (
 	CLIError,
 )
 
+__all__ = [
+	'main',
+	'run',
+]
+
+logger = logging.getLogger(__name__)
+logging.basicConfig(
+	level=logging.INFO,
+	format="%(message)s"
+)
 
 
-def main(argc, argv):
-	"""Main function to bpp utility."""
+def main(argv):
+	"""Main function to bpp utility.
+	
+	Args:
+	    argv: list -- sys.argv
+
+	"""
 
 	bpp_cli = BppCLI()
 	status = bpp_cli.parse(argv)
@@ -60,7 +78,7 @@ def main(argc, argv):
 		raise CLIError("Argument '--source or -s' not specified")
 	source = os.path.abspath(source)
 	current_dir = os.getcwd()
-	chdir_to_filedir(source)
+	chdir_tofiledir(source)
 	preprocessor = Preprocessor(source)
 	preprocessor.preprocessize()
 	os.chdir(current_dir)
@@ -77,7 +95,7 @@ def main(argc, argv):
 			preprocessor.save(output)
 		else:
 			preprocessed_file = preprocessor.get_preprocessed_file()
-			print(preprocessed_file)
+			logger.info(preprocessed_file)
 			return None
 	if run is not None:
 		command = "call %s" % output
@@ -98,12 +116,11 @@ def run():
 	"""
 
 	if os.name != 'nt':
-		print("Warning: Bpp utility works correctly in OS Windows")
-	argc = len(sys.argv)
+		logger.warning("Warning: Bpp utility works correctly in OS Windows")
 	argv = sys.argv
 	current_dir = os.getcwd()
 	try:
-		main(argc, argv)
+		main(argv)
 	
 	except Exception as ex:
 		exceps = (BPPError, OSError,)
@@ -113,10 +130,10 @@ def run():
 			)
 			if isinstance(ex, OSError) and ex.filename is not None:
 				error_message += ": '%s'" % ex.filename
-			print(error_message)
+			logger.error(error_message)
 		else:
 			error_message = "Error: Some kind of error has occurred"
-			print(error_message)
+			logger.error(error_message)
 		sys.exit(1)
 	
 	else:
@@ -130,17 +147,11 @@ def run():
 			pass
 
 
-__all__ = [
-	'main',
-	'run',
-]
-
-
 if __name__ == "__main__":
 	try:
 		run()
 	
 	except Exception:
 		error_message = "Error: Something went wrong"
-		print(error_message)
+		logger.error(error_message)
 		sys.exit(1)

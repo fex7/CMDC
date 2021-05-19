@@ -2,6 +2,7 @@
 
 import textwrap
 import copy
+import sys
 import os
 
 from .exceptions import (
@@ -11,6 +12,9 @@ from .version import (
 	getversion,
 )
 
+__all__ = [
+	'BppCLI',
+]
 
 
 class BppCLI:
@@ -65,13 +69,13 @@ class BppCLI:
 			    $ python bpp.py --run -s script.cmd
 			    $ python bpp.py -r -s script.cmd
 		""")
-		print(help_text)
+		print(help_text, file=sys.stdout)
 	
 	def print_version(self):
 		"""Printed Bpp utility version."""
 		
 		version = "bpp %s" % getversion()
-		print(version)
+		print(version, file=sys.stdout)
 	
 	def is_supported(self, argument):
 		"""Checks if the parameter is supported or not.
@@ -171,8 +175,3 @@ class BppCLI:
 		if isinstance(source, str) and not os.path.isfile(source):
 			raise CLIError('Source file not found')
 		return None
-
-
-__all__ = [
-	'BppCLI',
-]

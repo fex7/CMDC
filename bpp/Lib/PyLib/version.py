@@ -1,5 +1,8 @@
 """Bpp utility version."""
 
+__all__ = [
+	'getversion',
+]
 __version__ = "0.1.2"
 __author__ = "Artashes Nazinyan (Fex)"
 __author_email__ = "theartman380@gmail.com"
@@ -19,11 +22,6 @@ def getversion():
 		return __version__
 	else:
 		return ''
-
-
-__all__ = [
-	'getversion',
-]
 
 
 if __name__ == "__main__":

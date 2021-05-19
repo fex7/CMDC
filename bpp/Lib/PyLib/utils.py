@@ -2,9 +2,13 @@
 
 import os
 
+__all__ = [
+	'chdir_tofiledir',
+	'get_temp_dir',
+]
 
 
-def chdir_to_filedir(file_path):
+def chdir_tofiledir(file_path):
 	"""Changed directory to file directory.
 	
 	Args:
@@ -35,9 +39,3 @@ def get_temp_dir():
 	else:
 		tmp_dir = os.getenv('TMP', '.')
 	return tmp_dir
-
-
-__all__ = [
-	'chdir_to_filedir',
-	'get_temp_dir',
-]

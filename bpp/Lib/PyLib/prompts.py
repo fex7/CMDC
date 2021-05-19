@@ -5,6 +5,10 @@ Are here hints for different preprocessor commands.
 
 """
 
+__all__ = [
+	'get_include_prompt',
+]
+
 
 def get_include_prompt(number):
 	"""Returns some prompt for 'Include' command.
@@ -54,8 +58,3 @@ def get_include_prompt(number):
 	else:
 		prompt = ""
 	return prompt
-
-
-__all__ = [
-	'get_include_prompt',
-]

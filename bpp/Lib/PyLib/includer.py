@@ -1,4 +1,12 @@
-"""Implements the 'include' command."""
+"""Implements the 'include' command.
+
+Write this For more information:
+>>> # import sys
+>>> # sys.path.insert(1, <includer module path>)
+>>> import includer
+>>> help(includer.Includer)
+
+"""
 
 import os
 import textwrap
@@ -14,15 +22,72 @@ from .prompts import (
 	get_include_prompt,
 )
 
+__all__ = [
+	'Includer',
+	'get_special_includer',
+]
 
 
 class Includer(BaseCommand):
-	"""'Include' command class.
-	
+	"""Class for the 'include' command.
+
 	Constructor:
 	    regexs: dict -- include command regexs.
-	    source_file_path: str -- source bat file path
+	    source_file_path: str -- source file path
+	
+	Raises:
+	    TypeError -- If incorrect types.
+	----------------------------------------
 
+	This class is not tied to any programming language.
+	It just provides functionality for the 'include' command.
+
+	This class is not very flexible.
+	There are a lot of things you have to implement -
+	in order for everything to work as it should.
+	For example, there is no recursive 'include'.
+
+	Example:
+	>>> help(Includer.start)
+	There's just an example of how a -
+	recursive 'include' can be implemented.
+
+	The constructor takes a 'source_file_path' parameter.
+	It's just the path to the source file.
+	The class does not check this path in any way,
+	and does not read the file from this path.
+	This parameter is needed for other purposes.
+
+	The constructor takes a parameter such as 'regexs'.
+	It is a dictionary with regular expressions.
+	These keys must be there:
+	Keys names - <1,  11,  2,  21>
+	
+	Key 1:
+	    This is a standart include expression.
+	    Match example - :#include "somes\some.bat"
+		
+	Key 11:
+	    This one just fetches the contents of the 'include'.
+	    Match example - "somes\some.bat"
+
+	Key 2:
+	    This is the 'include' expression -
+	    with reference to environment variables.
+	    Match example - :#include "%somes_path%\some.bat"
+
+	Key 21:
+	    This one also just fetches the contents of the 'include',
+	    but which has a reference to environment variables.
+	    Match example - "%somes_path%\some.bat"
+
+	Example:
+	>>> # import sys
+	>>> # sys.path.insert (1, <includer module path>)
+	>>> import precommands
+	>>> help(precommands.IncluderRegexs)
+	It's just more about it there.
+	
 	"""
 
 	def __new__(cls, regexs, source_file_path):
@@ -101,7 +166,7 @@ class Includer(BaseCommand):
 		    return file extensions. ( ['.bat', '.cmd','.py'] )
 		If name == 'comment' then
 		    return comment symbol. ( '//', '#', '::', ...etc ) -
-			* the specify one option.
+		    * the specify one option.
 		
 		Args:
 		    name: str -- property name.
@@ -126,14 +191,14 @@ class Includer(BaseCommand):
 			errmsg = "This name '%s' - not supported" % name
 			raise ValueError(errmsg)
 
-	def read_include_bat(self, file_path):
-		"""Read include file.
+	def read_included_file(self, file_path):
+		"""Read included file.
 		
 		Args:
-		    file_path: str -- bat file path
+		    file_path: str -- file path
 		
 		Return:
-		    value: str -- bat file value
+		    value: str -- file value
 			
 		"""
 
@@ -146,20 +211,23 @@ class Includer(BaseCommand):
 		return self.read(file_path)
 	
 	def read_from_environ(self, environ_var):
-		"""Read bat file from environment.
+		"""Read file from environment.
 
-		Reads the file path of which is specified in environment variables.
+		Reads the file path of which is specified -
+		in environment variables.
 		
 		Args:
 		    environ_var: str -- environment variable name
 		
 		Return:
-		    value: tuple -- 0 is file value, 1 is unwrapped environment variable
+		    value: tuple -- :
+		        0 is file value,
+		        1 is unwrapped environment variable
 
 		"""
 		
 		variable_value = os.popen('echo %s' % environ_var).read().strip()
-		file_value = self.read_include_bat(variable_value)
+		file_value = self.read_included_file(variable_value)
 		return (file_value, variable_value)
 	
 	def syntax_analyze(self, source):
@@ -180,8 +248,8 @@ class Includer(BaseCommand):
 		error_message = textwrap.dedent("""
 			Syntax Error with 'include' command:\n
 			* %s
-			Line -- %s
-			SyntaxError -- %s""")[1:]
+			Line - %s
+			SyntaxError - %s""")[1:]
 		com_include = self._regexs
 		bad_templates = (n for n in com_include if n < 0)
 		for n in bad_templates:
@@ -235,17 +303,34 @@ class Includer(BaseCommand):
 			line = -1
 		raise IncludedSourceError(error_message % (line, include_expression))
 	
-	def include(self, source):
-		"""include bat files in bat.
+	def start(self, source):
+		"""Performs inclusion.
+
+		This method makes the inclusion non-recursive.
+		If you want to do it recursively,
+		call it multiple times.
+
+		An example of recursive inclusion:
+		------------------------------
+		>>> # source = <source file value>
+		>>> # includer_object = <Includer object>
+		>>> while True:
+		...     includeds = includer_object.start(source)
+		...     if includeds != source:
+		...         source = includeds
+		...     else:
+		...         break
+		------------------------------
 
 		Args:
 		    source: str -- source file value
 		
 		Return:
-		    value: str -- source includes
+		    value: str -- source after include on
 		
 		Raises:
 		    IncludeError -- raises if syntax incorrectly.
+		    IncludedSourceError -- raises if includes itself.
 
 		"""
 		
@@ -284,7 +369,7 @@ class Includer(BaseCommand):
 				included_file = included_file.group()[1:-1].strip()
 				if os.path.abspath(included_file) == self._source_file_path:
 					self.not_include_source(source, m1)
-				included_file_value = self.read_include_bat(included_file)
+				included_file_value = self.read_included_file(included_file)
 				included_value = '%s %s %s' % (
 					after_replacement % os.path.split(included_file)[-1],
 					included_file_value,
@@ -362,7 +447,112 @@ def get_special_includer(regexs, source_file_path, lang='batch'):
 	return includer
 
 
-__all__ = [
-	'Includer',
-	'get_special_includer',
-]
+def include_all(source_file_path, lang='batch'):
+	"""High-level and reliable function for the 'include' command.
+
+	This function is based on the 'Includer' class,
+	and the 'get_special_includer' function.
+
+	It is recommended to use this function instead -
+	of the 'Includer' class or the 'get_special_includer' function.
+
+	This function:
+	* Is at a higher level than the 'Includer' class.
+	* More reliable than the 'Includer' class.
+	* Simpler than the 'Includer' class.
+	* More convenient than the 'Includer' class.
+	* Supports recursive 'include'.
+	* But less flexible than the 'Includer' class.
+	----------------------------------------
+	
+	Args:
+	    source_file_path: str -- Source file path
+	
+	    lang: str -- :
+	        Program language name.
+	        Example - 'batch', 'python', 'java', etc
+	        This parameter affects language specific features.
+	        For example, a comment character, or file extensions, etc.
+	
+	Return:
+	    value: str -- Source file after includes.
+	
+	Raises:
+	    TypeError -- If incorrect types.
+	    FileNotFoundError -- If source file not found.
+	    ValueError -- If problem in arguments.
+	    ImportError -- If import module not found. Example:
+	        module 'precommands.py' not found.
+	    IncludeError -- If problem in include command.
+	    IncludedSourceError -- If includes itself.
+	    OSError -- If problem in operating system.
+	----------------------------------------
+
+	This function performs all the 'include' expressions -
+	that are specified inside the file.
+
+	The general syntax for the 'include' command is:
+	:#include "Inclusion file path"
+
+	Working with environment variables is also supported.
+	On Windows, these are percent characters (%variable%),
+	on Linux, these are dollar signs ($variable).
+
+	You need to write 'include' statements inside files -
+	before running this function.
+
+	Example in Windows:
+	:#include "somes\some.py"
+	:#include "%somepy_path%"
+	:#include "%somes_path%\some.py"
+
+	Example in Linux:
+	:#include "somes/some.py"
+	:#include "$somepy_path"
+	:#include "$somes_path/some.py"
+	----------------------------------------
+	
+	############# -Examples- ###############
+	----------------------------------------
+	>>> # imports 'include_all' function.
+	>>> from includer import include_all
+	>>> 
+	>>> # Opens source files.
+	>>> source1 = open('src.bat')
+	>>> source2 = open('src.py')
+	>>> source3 = open('src.java')
+	>>> # Reads source files and closes.
+	>>> source_val1 = source1.read(); source1.close() 
+	>>> source_val2 = source2.read(); source2.close()
+	>>> source_val3 = source3.read(); source3.close()
+	>>> # Calls 'include_all' function. Inclusions.
+	>>> included1 = include_all(source_val1)
+	>>> included2 = include_all(source_val2, 'python')
+	>>> included3 = include_all(source_val3, 'java')
+	>>> # Saves results.
+	>>> target1 = open('nsrc.bat', 'w')
+	>>> target1.write(included1); target1.close()
+	>>> target2 = open('nsrc.py', 'w')
+	>>> target2.write(included2); target2.close()
+	>>> ...
+	----------------------------------------
+
+	"""
+	
+	if not isinstance(source_file_path, str):
+		raise TypeError("Param 'source_file_path' must be 'str' type")
+	if not os.path.isfile(source_file_path):
+		raise FileNotFoundError("Source file not found")
+	from .precommands import PreprocessorCommands
+	preproc_commands = PreprocessorCommands()
+	regexs = preproc_commands.get_com_include()
+	includer_obj = get_special_includer(regexs, source_file_path, lang)
+	source_file_value = '\n' + includer_obj.read(source_file_path) + '\n'
+	start_include = includer_obj.start
+	while True:
+		included_source = start_include(source_file_value)
+		if included_source != source_file_value:
+			source_file_value = included_source
+		else:
+			break
+	return included_source[1:-1]
