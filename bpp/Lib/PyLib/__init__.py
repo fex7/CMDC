@@ -6,7 +6,7 @@ __all__ = [
 
 
 def init():
-	"""Initializes modules and packages.
+	"""Initializes modules and packages of this package.
 	
 	Return:
 	    value: int -- imports count
@@ -20,6 +20,7 @@ def init():
 	from . import version
 	from . import includer
 	from . import exceptions
+	from . import structures
 	from . import precommands
 	from . import preprocessor
 

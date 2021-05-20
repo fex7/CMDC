@@ -463,7 +463,7 @@ def include_all(source_file_path, lang='batch'):
 	* More convenient than the 'Includer' class.
 	* Supports recursive 'include'.
 	* But less flexible than the 'Includer' class.
-	----------------------------------------
+	----------------------------------------------
 	
 	Args:
 	    source_file_path: str -- Source file path
@@ -486,7 +486,7 @@ def include_all(source_file_path, lang='batch'):
 	    IncludeError -- If problem in include command.
 	    IncludedSourceError -- If includes itself.
 	    OSError -- If problem in operating system.
-	----------------------------------------
+	----------------------------------------------
 
 	This function performs all the 'include' expressions -
 	that are specified inside the file.
