@@ -14,7 +14,7 @@ This utility will work correctly on Windows operating systems.
 ------------------------------
 Date: 12 May 2021
 
-Author: Fex
+Author: Fex1
 GitHub: https://github.com/Fexxyi
 
 """
@@ -25,20 +25,20 @@ import sys
 import os
  
 sys.path.insert(
-	1, os.path.realpath(os.path.join(__file__, '..', 'Lib'))
+	1, os.path.realpath(os.path.join(__file__, os.pardir, 'Lib'))
 )
 
-from PyLib.preprocessor import (
+from BpPyLib.preprocessor import (
 	Preprocessor,
 )
-from PyLib.bppcli import (
+from BpPyLib.bppcli import (
 	BppCLI,
 )
-from PyLib.utils import (
-	chdir_tofiledir,
+from BpPyLib.utils import (
+	chdir_to_filedir,
 	get_temp_dir,
 )
-from PyLib.exceptions import (
+from BpPyLib.exceptions import (
 	BPPError,
 	CLIError,
 )
@@ -78,12 +78,14 @@ def main(argv):
 		raise CLIError("Argument '--source or -s' not specified")
 	source = os.path.abspath(source)
 	current_dir = os.getcwd()
-	chdir_tofiledir(source)
+	chdir_to_filedir(source)
 	preprocessor = Preprocessor(source)
 	preprocessor.preprocessize()
 	os.chdir(current_dir)
 	if output is not None:
 		output = os.path.abspath(output)
+		if os.path.isdir(output):
+			output = os.path.join(output, '.bat')
 		preprocessor.save(output)
 	else:
 		if run is not None:
@@ -101,7 +103,6 @@ def main(argv):
 		command = "call %s" % output
 		try:
 			os.system(command)
-			
 		finally:
 			if parsered_args['output'] is None:
 				os.remove(output)
@@ -135,14 +136,11 @@ def run():
 			error_message = "Error: Some kind of error has occurred"
 			logger.error(error_message)
 		sys.exit(1)
-	
 	else:
 		sys.exit(0)
-	
 	finally:
 		try:
 			os.chdir(current_dir)
-		
 		except Exception:
 			pass
 

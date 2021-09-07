@@ -1,2 +1,4 @@
+# Python caches
 __pycache__
-BPP/Scripts/bpp.bat
+*.pyc
+*.pyo
