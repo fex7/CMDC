@@ -12,10 +12,8 @@ $ python bpp.py --help
 This utility will work correctly on Windows operating systems.
 
 ------------------------------
-Date: 12 May 2021
 
-Author: Fex1
-GitHub: https://github.com/fex7
+Date: 12 May 2021
 
 """
 

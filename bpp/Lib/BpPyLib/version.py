@@ -4,6 +4,7 @@ __all__ = ['getversion',]
 __version__ = "0.1.2"
 __author__ = "Artashes Nazinyan (fex1)"
 __author_email__ = "theartman380@gmail.com"
+__author_github__ = "https://github.com/fex7"
 
 
 def getversion():

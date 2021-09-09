@@ -141,6 +141,7 @@ But to compile you need the following tools, which must be added to the Path env
 2. Cython (More specifically Cythonize)
 3. Nuitka (For compiling **`bpp.py`**)
 4. C Compiler (GCC)
+
 And maybe something else depending on the version of these tools.
 
 [build.bat](../Scripts/build.bat "File: build.bat") takes one parameter, which is '-o'.
