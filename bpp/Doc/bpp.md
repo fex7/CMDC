@@ -146,5 +146,4 @@ And maybe something else depending on the version of these tools.
 
 [build.bat](../Scripts/build.bat "File: build.bat") takes one parameter, which is '-o'.
 If you specify this parameter, then all unnecessary files will be deleted.
-
 The compiled binaries will be in the 'Dist' folder, which is located at the root of the BPP folder.
