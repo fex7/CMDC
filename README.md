@@ -49,7 +49,7 @@ But if you want to implement something like that, then this is welcome.
 BPP is the main tool of CMDC.
 It is a console utility, and when you run the cmdc.bat utility,
 it eventually starts the BPP utility
-([bpp.bat](./Bin/bpp.bat "file: bpp.bat") and [bpp.py](./BPP/bpp.py "file: bpp.py") through it).
+([bpp.bat](./Bin/bpp.bat "file: bpp.bat") and [bpp.py](./bpp/bpp.py "file: bpp.py") through it).
 BPP is a multi-module utility,
 which is written entirely in Python.
 For BPP to work, you need a Python interpreter, oddly enough.
@@ -106,9 +106,9 @@ This will allow for the development of CMDC.
 
 > cmdc.bat \[-s | --source \<source file\>\] \[-o | --output \<output file\>\] \[-r | --run\]
 
-For more details on these parameters read **["bpp.md"](./../BPP/Doc/bpp.md)**
+For more details on these parameters read **["bpp.md"](./../bpp/Doc/bpp.md)**
 
-This utility eventually runs **["bpp.py"](./../BPP/bpp.py)**, passes all -
+This utility eventually runs **["bpp.py"](./../bpp/bpp.py)**, passes all -
 the command line arguments and therefore supports all -
 parameters that **`bpp.py`** supports.
 
@@ -127,4 +127,4 @@ But it comes with CMDC.
 ---
 
 Read [blib.md](./Doc/blib.md "Doc for BLIB") and
-[bpp.md](./BPP/Doc/bpp.md "Doc for BPP") for more information.
+[bpp.md](./bpp/Doc/bpp.md "Doc for BPP") for more information.
