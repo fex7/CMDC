@@ -15,7 +15,7 @@ This utility will work correctly on Windows operating systems.
 Date: 12 May 2021
 
 Author: Fex1
-GitHub: https://github.com/Fexxyi
+GitHub: https://github.com/fex7
 
 """
 
