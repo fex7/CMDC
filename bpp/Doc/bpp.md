@@ -129,3 +129,21 @@ In short, this inclusion system is very similar to the one in the C language.
     :#include C:\hello2.bat
     :#include "C:\hello2.bat"ahhhh
     :#include ahhhh"C:\hello2.bat"
+
+---
+
+## **`build.bat`** - builds the entire BPP utility
+
+This utility just compiles all BPP modules and after **`bpp.py`**.
+But to compile you need the following tools, which must be added to the Path environment variable:
+
+1. Python interpreter (preferably something from version 3.8)
+2. Cython (More specifically Cythonize)
+3. Nuitka (For compiling **`bpp.py`**)
+4. C Compiler (GCC)
+And maybe something else depending on the version of these tools.
+
+[build.bat](../Scripts/build.bat "File: build.bat") takes one parameter, which is '-o'.
+If you specify this parameter, then all unnecessary files will be deleted.
+
+The compiled binaries will be in the 'Dist' folder, which is located at the root of the BPP folder.

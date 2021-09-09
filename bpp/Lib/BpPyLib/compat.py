@@ -11,7 +11,7 @@ __all__ = [
 PYTHON_VERSION = sys.version_info
 PYTHON_MAJOR_VERSION = sys.version_info[0]
 
-# functions and constants specific to the Python language version.
+# Functions and constants specific to the Python language version.
 if PYTHON_MAJOR_VERSION == 2:
 	...
 

@@ -119,5 +119,12 @@ And **`bpp.py`** just does whatever it needs with these arguments.
 
 ---
 
+## What is needed for CMDC to work?
+
+Almost nothing, the only one is the Python 3 interpreter.
+But it comes with CMDC.
+
+---
+
 Read [blib.md](./Doc/blib.md "Doc for BLIB") and
 [bpp.md](./BPP/Doc/bpp.md "Doc for BPP") for more information.
