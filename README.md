@@ -106,9 +106,9 @@ This will allow for the development of CMDC.
 
 > cmdc.bat \[-s | --source \<source file\>\] \[-o | --output \<output file\>\] \[-r | --run\]
 
-For more details on these parameters read **["bpp.md"](./../bpp/Doc/bpp.md)**
+For more details on these parameters read **["bpp.md"](bpp/Doc/bpp.md)**
 
-This utility eventually runs **["bpp.py"](./../bpp/bpp.py)**, passes all -
+This utility eventually runs **["bpp.py"](bpp/bpp.py)**, passes all -
 the command line arguments and therefore supports all -
 parameters that **`bpp.py`** supports.
 
