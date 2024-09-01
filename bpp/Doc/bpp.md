@@ -41,8 +41,6 @@ then it is impossible to include it itself, not the file that has the same name,
 
 ## An example of how BPP works
 
-<br>
-
 > file: test.bat
 
     echo hello world  
